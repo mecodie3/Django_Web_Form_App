@@ -1,20 +1,36 @@
 from django.shortcuts import render
 from .forms import ApplicationForm
+from .models import Form
+from django.contrib import messages
 
 def index(request):
-    #get the data from the widgets
+    # Check if the request is a form submission (POST request)
     if request.method == "POST":
-        #ContactForm Class
+        # Bind the submitted POST data to the ApplicationForm
         form = ApplicationForm(request.POST)
+
+        # Validate the form data (check required fields, data types, etc.)
         if form.is_valid():
-            #dictionary is created in cleaned_data like {"first_name":"John","last_name":"Smith"}
+            # Extract cleaned (validated and sanitized) data from the form
             first_name = form.cleaned_data["first_name"]
             last_name = form.cleaned_data["last_name"]
             email = form.cleaned_data["email"]
             date = form.cleaned_data["date"]
             occupation = form.cleaned_data["occupation"]
-            print(first_name,last_name, email,date,occupation)
-    return render(request,"index.html")
 
+            # Save a new record into the database using the Form model
+            Form.objects.create(
+                first_name=first_name,
+                last_name=last_name,
+                email=email,
+                date=date,
+                occupation=occupation
+            )
+
+            # Print the message once the data was loaded into the DB
+            messages.success(request,"Form submitted successfully")
+
+    # Render the "index.html" template for both GET and POST requests
+    return render(request, "index.html")
 
 
