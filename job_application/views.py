@@ -2,6 +2,7 @@ from django.shortcuts import render
 from .forms import ApplicationForm
 from .models import Form
 from django.contrib import messages
+from django.core.mail import EmailMessage
 
 def index(request):
     # Check if the request is a form submission (POST request)
@@ -26,6 +27,19 @@ def index(request):
                 date=date,
                 occupation=occupation
             )
+
+
+            message_body = f"A new job application was submitted. Thank you, {first_name}."
+
+            email_message = EmailMessage(
+                subject="Form submission confirmation",
+                body=message_body,
+                to=[email]
+            )
+            email_message.content_subtype = "plain"  # Or "html" if you're using HTML
+            email_message.send()
+
+
 
             # Print the message once the data was loaded into the DB
             messages.success(request,"Form submitted successfully")
